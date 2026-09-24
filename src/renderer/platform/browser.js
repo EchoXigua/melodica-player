@@ -31,6 +31,7 @@ export const browserApi = {
   info: wrap(() => ({ platform: 'browser', version: '0.2.0' })),
   compile: wrap(plan),
   targets: wrap(() => []),
+  copyText: wrap((text) => navigator.clipboard.writeText(text)),
   loadBundledMidi: wrap(async (name) => {
     const res = await fetch(`./${name}`);
     if (!res.ok) throw Error(`无法加载 ${name}`);

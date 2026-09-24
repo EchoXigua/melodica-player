@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('melodica', {
   importMidi: () => ipcRenderer.invoke('midi'),
   loadBundledMidi: (name) => ipcRenderer.invoke('bundled-midi', name),
   targets: () => ipcRenderer.invoke('targets'),
+  copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   play: (r) => ipcRenderer.invoke('play', r),
   stop: (options) => ipcRenderer.invoke('stop', options),
   onPlayback: (callback) => {

@@ -29,12 +29,18 @@ test('音域内全部 38 半音可编译且键鼠成对释放', () => {
     assert.equal(p.notes[0].pitch, pitch);
   }
 });
-test('超音域、非法曲谱、参数和过短音符显式失败', () => {
+test('超音域折八度，非法曲谱、参数和过短音符显式失败', () => {
   assert.throws(() => parseScore('8', {}));
   assert.throws(() => parseScore('#0', {}));
   assert.throws(() => parseScore('1', { bpm: 0 }));
-  assert.throws(() => compile(parseScore('1', {}), { transpose: 36 }), /超出/);
-  assert.throws(() => compile(parseScore('1:0.0625', { bpm: 300 }), {}), /过短/);
+  const folded = compile({ notes: [{ midi: 38, time: 0, duration: 1 }], duration: 1 }, {});
+  assert.equal(folded.notes[0].pitch, 50);
+  assert.match(folded.warnings.join(' '), /MIDI 38 → 50/);
+  assert.equal(compile(parseScore('1', {}), { transpose: 36 }).notes[0].pitch, 84);
+  assert.throws(() => compile(parseScore('1:0.0625', { bpm: 300 }), {}), /太短/);
+  const shortened = compile(parseScore('1:0.0625 1', { bpm: 300 }), {});
+  assert.equal(shortened.notes.length, 1);
+  assert.match(shortened.warnings.join(' '), /第 1 个/);
 });
 test('同音重奏先释放，修饰键不泄漏到下一音', () => {
   const p = compile(parseScore('<1 <1 >#2 3', {}), {});

@@ -1,4 +1,4 @@
-const { app, ipcMain, dialog } = require('electron');
+const { app, ipcMain, dialog, clipboard } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { Midi } = require('@tonejs/midi');
@@ -79,6 +79,10 @@ function registerIpc({
     return scoreSession.importMidi(parsed, path.basename(file));
   });
   handle('targets', listTargets);
+  handle('clipboard:write', (text) => {
+    if (typeof text !== 'string' || text.length > 100000) throw Error('要复制的内容过长');
+    clipboard.writeText(text);
+  });
   handle('input:permission', requestPermission, true);
   handle('stop', (options) => emergencyStop({ seeking: options?.seeking === true }), true);
   handle('play', (request) => {

@@ -111,5 +111,5 @@
   @apply [outline:2px_solid_var(--orange)] [outline-offset:3px];
 }
 .target-row select {
-  @apply w-[165px] rounded-[4px] border-[1px] border-solid border-[#30303d] bg-[white] p-[4px] text-[9px] text-[#9393a7];
+  @apply h-7 w-[148px] min-w-[148px] shrink-0 rounded-full border-[1px] border-solid border-[#30303d] bg-[white] px-3 text-[12px] text-[#9393a7];
 }

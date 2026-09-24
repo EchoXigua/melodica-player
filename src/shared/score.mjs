@@ -14,6 +14,7 @@ function settings(raw = {}) {
     speed: number(raw.speed ?? 1, 0.25, 3, '速度'),
     gap: number(raw.gap ?? 35, 5, 200, '音间隔'),
     lead: number(raw.lead ?? 12, 0, 100, '鼠标提前量'),
+    jitter: number(raw.jitter ?? 0, 0, 50, '随机抖动'),
   };
 }
 function parseScore(text, raw) {
@@ -90,10 +91,23 @@ function compile(source, raw) {
   const events = [],
     notes = [];
   const warnings = [...(source.warnings || [])];
+  const low = s.base - 12;
+  const high = s.base + 25;
+  let folded = 0;
+  let foldedExample = '';
+  let skipped = 0;
+  let skippedExample = '';
   let previousMouse = '';
   for (let i = 0; i < source.notes.length; i++) {
     const n = source.notes[i];
-    const pitch = n.midi + s.transpose;
+    let pitch = n.midi + s.transpose;
+    const written = pitch;
+    while (pitch < low) pitch += 12;
+    while (pitch > high) pitch -= 12;
+    if (pitch !== written) {
+      folded++;
+      if (!foldedExample) foldedExample = `MIDI ${written} → ${pitch}`;
+    }
     const candidates = [];
     for (const octave of [0, -1, 1])
       for (const sharp of [0, 1])
@@ -113,25 +127,39 @@ function compile(source, raw) {
     candidates.sort((a, b) => a.cost - b.cost);
     const mapping = candidates[0];
     if (!mapping)
-      throw Error(
-        `第 ${i + 1} 个音 MIDI ${pitch} 超出音域 ${s.base - 12}–${s.base + 25}，请调整移调`,
-      );
-    previousMouse = mapping.mouse.join(',');
-    const at = Math.round((n.time * 1000) / s.speed) + s.lead;
+      throw Error(`第 ${i + 1} 个音 MIDI ${pitch} 超出音域 ${low}–${high}，请调整移调`);
+    const at0 = Math.round((n.time * 1000) / s.speed) + s.lead;
     const available = Math.min(
       (n.duration * 1000) / s.speed,
       ((source.notes[i + 1]?.time - n.time) * 1000) / s.speed || Infinity,
     );
     const hold = Math.floor(available - s.gap - s.lead);
-    if (hold < 10) throw Error(`第 ${i + 1} 个音过短；请降低速度或减小音间隔/鼠标提前量`);
+    if (hold < 10) {
+      skipped++;
+      if (!skippedExample) skippedExample = `第 ${i + 1} 个`;
+      continue;
+    }
+    const wobble = s.jitter
+      ? Math.round((Math.random() * 2 - 1) * Math.min(s.jitter, s.gap / 2))
+      : 0;
+    const holdWobble = s.jitter
+      ? Math.round((Math.random() * 2 - 1) * Math.min(s.jitter, s.gap / 4))
+      : 0;
+    const at = at0 + wobble;
+    const held = Math.max(10, hold + holdWobble);
+    previousMouse = mapping.mouse.join(',');
     for (const button of mapping.mouse)
       events.push({ at: at - s.lead, device: 'mouse', code: button, down: true });
     events.push({ at, device: 'key', code: mapping.key, down: true, index: i });
-    events.push({ at: at + hold, device: 'key', code: mapping.key, down: false });
+    events.push({ at: at + held, device: 'key', code: mapping.key, down: false });
     for (const button of mapping.mouse)
-      events.push({ at: at + hold, device: 'mouse', code: button, down: false });
-    notes.push({ ...n, pitch, at, hold, ...mapping });
+      events.push({ at: at + held, device: 'mouse', code: button, down: false });
+    notes.push({ ...n, pitch, at, hold: held, ...mapping });
   }
+  if (!notes.length) throw Error('这些音都太短，当前音间隔和鼠标提前量放不下');
+  if (folded)
+    warnings.push(`已将 ${folded} 个超出音域的音按八度折入 ${low}–${high}（${foldedExample}）。`);
+  if (skipped) warnings.push(`已跳过 ${skipped} 个过短的音（${skippedExample}），其余照常演奏。`);
   events.sort((a, b) => a.at - b.at || Number(a.down) - Number(b.down));
   const duration = Math.max((source.duration * 1000) / s.speed + s.lead, events.at(-1).at);
   if (duration > 1800000) throw Error('单次演奏最长 30 分钟');

@@ -42,7 +42,7 @@ export function Player({ s, enter, reduced }) {
   const ratio = Math.min(1, Math.max(0, shown / duration));
   return (
     <motion.footer
-      className="player fixed right-0 bottom-0 left-[214px] z-10 flex h-[96px] items-center gap-6 bg-[#121118]/95 px-6 pt-[12px] [backdrop-filter:blur(18px)] [border-top:1px_solid_#2a2633]"
+      className="player fixed right-0 bottom-0 left-[214px] z-10 grid h-[96px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-6 bg-[#121118]/95 px-6 pt-[12px] [backdrop-filter:blur(18px)] [border-top:1px_solid_#2a2633]"
       style={{ '--progress': `${ratio * 100}%` }}
       {...enter(0.24)}
       initial={{ opacity: 0 }}
@@ -102,7 +102,7 @@ export function Player({ s, enter, reduced }) {
         </div>
       </div>
       <div className="player-center flex shrink-0 items-center gap-3">
-        <span className="w-10 text-right text-[11px] text-[#8a8098] tabular-nums">
+        <span className="w-12 shrink-0 text-right text-[11px] whitespace-nowrap text-[#8a8098] tabular-nums">
           {clock(shown)}
         </span>
         <IconButton label="重置播放进度" disabled={s.busy} onClick={s.reset}>
@@ -147,11 +147,11 @@ export function Player({ s, enter, reduced }) {
             <ListMusic size={18} />
           )}
         </IconButton>
-        <span className="w-10 text-[11px] text-[#8a8098] tabular-nums">
+        <span className="w-12 shrink-0 text-[11px] whitespace-nowrap text-[#8a8098] tabular-nums">
           {clock(s.plan?.duration || 0)}
         </span>
       </div>
-      <div className="player-tools flex min-w-0 flex-1 items-center justify-end gap-2">
+      <div className="player-tools flex min-w-0 items-center justify-end gap-2">
         <div role="radiogroup" aria-label="播放模式" className="flex items-center gap-1">
           {[
             ['input', '键鼠', '键鼠演奏', Keyboard],
@@ -173,8 +173,8 @@ export function Player({ s, enter, reduced }) {
             </button>
           ))}
         </div>
-        {listening ? (
-          <label className="flex items-center gap-2 text-[#a398b4]">
+        {listening && (
+          <label className="flex shrink-0 items-center gap-2 text-[#a398b4]">
             <Volume2 size={16} />
             <input
               id="volume"
@@ -188,27 +188,23 @@ export function Player({ s, enter, reduced }) {
               style={{ '--volume': `${s.volume}%` }}
             />
           </label>
-        ) : (
-          <span className="hidden max-w-[160px] truncate text-[11px] text-[#8d849c] xl:block">
-            {!s.input.supported
-              ? '请使用桌面端演奏'
-              : s.target
-                ? '向选定窗口发送输入'
-                : '请先选择接收窗口'}
-          </span>
         )}
-        <div className="player-output flex items-center gap-2">
+        <div className="player-output flex shrink-0 items-center gap-2">
           {!listening && s.platform === 'darwin' && !s.input.granted && (
             <button
               id="input-permission"
               onClick={s.requestInputPermission}
-              className="rounded bg-[#3c3150] px-2 py-1 text-[11px] text-white"
+              aria-label="授权辅助功能"
+              title="在系统设置中允许辅助功能，授权后重启应用"
+              className="flex h-7 shrink-0 items-center rounded-full bg-[#3c3150] px-3 text-[12px] whitespace-nowrap text-[#f4e9ff]"
             >
-              授权辅助功能
+              授权
             </button>
           )}
           {!listening && s.platform === 'darwin' && !s.input.ready && (
-            <span className="text-[11px] text-red-300">请运行 pnpm native:mac</span>
+            <span className="shrink-0 text-[11px] whitespace-nowrap text-red-300">
+              请运行 pnpm native:mac
+            </span>
           )}
 
           {!listening && s.input.supported && (
@@ -248,7 +244,7 @@ export function Player({ s, enter, reduced }) {
             onClick={s.openInputTest}
             disabled={s.busy}
             title="键鼠测试"
-            className="flex h-7 items-center gap-1 rounded-full bg-[#221f2a] px-3 text-[12px] text-[#b7aec4] hover:bg-[#2a2633]"
+            className="hidden"
           >
             <Keyboard size={13} />
             测试

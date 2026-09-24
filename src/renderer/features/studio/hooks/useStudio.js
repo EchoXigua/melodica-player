@@ -5,7 +5,7 @@ import { usePlayback } from './usePlayback';
 import { useOutputTarget } from './useOutputTarget';
 import { nextSongId, PLAY_ORDERS } from '../../../../shared/queue.mjs';
 import { EXAMPLE, SCALE, DEFAULTS } from '../data/presets';
-import { BUNDLED_MIDI } from '../data/bundled-presets';
+import { BUNDLED_MIDI, BUNDLED_SCORES } from '../data/bundled-presets';
 
 function midiItem(value, { id, title, qualityNote }) {
   const track = value.tracks.find((t) => t.count)?.index ?? 0;
@@ -24,7 +24,6 @@ function midiItem(value, { id, title, qualityNote }) {
 export function useStudio() {
   const [library, setLibrary] = useState([
     { id: 'example', title: '小星星', mode: 'score', text: EXAMPLE },
-    { id: 'scale', title: '音域校准', mode: 'score', text: SCALE },
   ]);
   const [libraryReady, setLibraryReady] = useState(false);
   const [saveState, setSaveState] = useState('loading');
@@ -116,7 +115,24 @@ export function useStudio() {
     void (async () => {
       try {
         const saved = await unwrap(api.readLibrary());
-        let items = saved?.items || library;
+        const retired = new Set([
+          'scale',
+          'qingtian',
+          'tori',
+          'qiangjun',
+          'laonanhai',
+          'yuai',
+          'huahai',
+          'zhuzhuxia-jianpu',
+          'dystopia-jianpu',
+          'lawrence-jianpu',
+          'xingjiang-jianpu',
+          'chunriying-jianpu',
+          'sibie-jianpu',
+          'yuanhangxing-jianpu',
+          'toriuta-jianpu',
+        ]);
+        let items = (saved?.items || library).filter((item) => !retired.has(item.id));
         items = await Promise.all(
           items.map(async (item) =>
             item.mode === 'midi'
@@ -132,6 +148,10 @@ export function useStudio() {
           } catch {
             /* Missing optional bundled files must not discard the user's saved library. */
           }
+        }
+        for (const preset of BUNDLED_SCORES) {
+          if (items.some((item) => item.id === preset.id)) continue;
+          items.push({ id: preset.id, title: preset.title, mode: 'score', text: preset.text });
         }
         if (cancelled) return;
         setLibrary(items);
@@ -246,16 +266,35 @@ export function useStudio() {
       fail(e);
     }
   }
+  function createScoreSong(text, title) {
+    if (busy) throw Error('演奏中无法新建曲目，请先停止。');
+    const trimmed = typeof text === 'string' ? text.trim() : '';
+    if (!trimmed) throw Error('请先粘贴简谱文本。');
+    const item = {
+      id: crypto.randomUUID(),
+      title: (title || '').trim().slice(0, 120) || '新曲目',
+      mode: 'score',
+      text: trimmed,
+    };
+    setAutoNext(null);
+    setLibrary((items) => [...items, item]);
+    activate(item);
+    setStatus('idle');
+  }
   function reset() {
     if (busy) return;
     void seek(0);
-    setActive(-1);
-    setStatus('idle');
+    setActive(-1);    setStatus('idle');
     setNotice({ text: '已回到曲首。', error: false });
   }
   function load(kind) {
     if (busy) return;
-    activate(library.find((item) => item.id === (kind === 'scale' ? 'scale' : 'example')));
+    if (kind === 'scale') {
+      const existing = library.find((item) => item.id === 'scale');
+      const item = existing || { id: 'scale', title: '音域校准', mode: 'score', text: SCALE };
+      if (!existing) setLibrary((items) => [item, ...items]);
+      activate(item);
+    } else activate(library.find((item) => item.id === 'example'));
     setStatus('idle');
   }
   return {
@@ -404,6 +443,7 @@ export function useStudio() {
       }
     },
     importMidi,
+    createScoreSong,
     refresh,
     load,
     reset,

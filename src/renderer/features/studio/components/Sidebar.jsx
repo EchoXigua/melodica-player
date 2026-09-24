@@ -3,7 +3,9 @@ import { Reorder, useDragControls } from 'motion/react';
 import {
   GripVertical,
   AudioLines,
+  Check,
   CircleHelp,
+  Copy,
   EllipsisVertical,
   Layers3,
   Pencil,
@@ -11,6 +13,8 @@ import {
   Settings2,
   Trash2,
 } from 'lucide-react';
+import { TRANSCRIBE_PROMPT } from '../data/transcribePrompt';
+import { api, unwrap } from '../../../platform/client';
 
 function SongRow({
   item,
@@ -142,6 +146,8 @@ export function Sidebar({ s, setDialog }) {
   const [menu, setMenu] = useState(null);
   const [renamingId, setRenamingId] = useState(null);
   const [draft, setDraft] = useState('');
+  const [promptCopied, setPromptCopied] = useState(false);
+  const [promptError, setPromptError] = useState('');
   const renameDone = useRef(false);
   const [order, setOrder] = useState(s.library);
   const orderRef = useRef(s.library);
@@ -162,6 +168,17 @@ export function Sidebar({ s, setDialog }) {
     renameDone.current = true;
     if (save && draft.trim()) s.renameSong(renamingId, draft);
     setRenamingId(null);
+  }
+  async function copyPrompt() {
+    try {
+      await unwrap(api.copyText(TRANSCRIBE_PROMPT));
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 1800);
+      setDialog('transcribe');
+    } catch (error) {
+      setPromptError(error.message);
+      setTimeout(() => setPromptError(''), 3000);
+    }
   }
   return (
     <aside className="sidebar fixed inset-y-0 left-0 z-20 flex w-[214px] flex-col border-0 border-r border-solid border-[#22222c] bg-[#101015] px-[18px] py-[28px]">
@@ -244,6 +261,21 @@ export function Sidebar({ s, setDialog }) {
           <Plus size={15} />
           导入曲谱
         </button>
+        <button
+          id="copy-transcribe-prompt"
+          type="button"
+          className="mt-[8px] flex w-full shrink-0 items-center gap-[8px] rounded-[8px] border border-dashed border-[#353543] bg-transparent px-[12px] py-[11px] text-[13px] text-[#b0aabd] hover:border-[#a78bfa]"
+          onClick={copyPrompt}
+          title="复制提示词，配合简谱图片发给 AI，让它转写成简谱文本"
+        >
+          {promptCopied ? <Check size={15} /> : <Copy size={15} />}
+          {promptCopied ? '已复制' : '复制图片转谱提示词'}
+        </button>
+        {promptError && (
+          <p role="alert" className="mt-[6px] text-[11px] text-[#e29a9a]">
+            {promptError}
+          </p>
+        )}
       </div>
       <div className="sidebar-bottom mt-[24px] border-0 border-t border-solid border-[#24242f] pt-[16px]">
         <button

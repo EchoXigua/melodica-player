@@ -120,7 +120,7 @@ app.on('browser-window-created', (_e, win) => {
       await js(
         'document.querySelector(\'[data-song-id="example"] [data-reorder]\').dispatchEvent(new KeyboardEvent("keydown", {key:"ArrowDown",altKey:true,bubbles:true}))',
       );
-      assert.equal(await js('document.querySelector(".song-item").dataset.songId'), 'scale');
+      assert.equal(await js('document.querySelector(".song-item").dataset.songId'), 'fuqin');
       await js(
         'document.querySelector(\'[data-song-id="example"] [data-reorder]\').dispatchEvent(new KeyboardEvent("keydown", {key:"ArrowUp",altKey:true,bubbles:true}))',
       );

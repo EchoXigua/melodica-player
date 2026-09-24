@@ -1,4 +1,5 @@
 const { app, BrowserWindow, globalShortcut, session } = require('electron');
+app.setName('Melodica Studio');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { createScoreSession } = require('../shared/score-session.mjs');

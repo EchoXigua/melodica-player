@@ -27,6 +27,10 @@ public class InputEngine {
  static readonly Dictionary<string,ushort> scans=new Dictionary<string,ushort>{{"Z",0x2c},{"X",0x2d},{"C",0x2e},{"V",0x2f},{"B",0x30},{"N",0x31},{"M",0x32},{",",0x33}};
  static readonly Dictionary<string,ushort> vks=new Dictionary<string,ushort>{{"Z",0x5a},{"X",0x58},{"C",0x43},{"V",0x56},{"B",0x42},{"N",0x4e},{"M",0x4d},{",",0xbc}};
  static readonly HashSet<string> held=new HashSet<string>();
+ public static void Release() {
+  foreach(string code in new string[]{"Z","X","C","V","B","N","M",","}) try{Send("key",code,false);}catch{}
+  foreach(string code in new string[]{"left","right","middle"}) try{Send("mouse",code,false);}catch{}
+ }
  public static void List() {
   EnumWindows(delegate(IntPtr h,IntPtr unused) {
    if(!IsWindowVisible(h))return true;

@@ -45,7 +45,16 @@ registerIpc({
   emergencyStop,
   getShortcuts: () => shortcuts,
 });
+function releaseStuckInput() {
+  if (process.platform !== 'win32') return;
+  const { native } = require('./adapters/windows.cjs');
+  const child = native('release');
+  child.stdout.resume();
+  child.stderr.resume();
+  child.on('error', () => {});
+}
 app.whenReady().then(() => {
+  releaseStuckInput();
   if (process.platform === 'darwin')
     app.dock.setIcon(path.join(__dirname, '../../assets/icons/icon.png'));
   session.defaultSession.setPermissionRequestHandler((_wc, _p, cb) => cb(false));

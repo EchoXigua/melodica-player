@@ -1,0 +1,33 @@
+.dialog::backdrop {
+  @apply bg-[#101016] [backdrop-filter:blur(5px)];
+}
+.dialog h2 {
+  @apply [margin:17px_0_10px] text-[26px] font-[550] tracking-[-1px];
+}
+.dialog p {
+  @apply text-[11px] leading-[1.8] text-[#9393a7];
+}
+.dialog .button.dark {
+  @apply mt-[20px] bg-[#101016] text-[#9393a7] [border:0];
+}
+.calibration-field small {
+  @apply mt-[7px] block text-[9px] text-[#9393a7];
+}
+.calibration-field input {
+  @apply w-[65px] rounded-[5px] border-[1px] border-solid border-[#30303d] bg-[white] p-[8px] text-[#f0f0f6];
+}
+.help-steps article {
+  @apply mx-[0] my-[22px] flex gap-[18px];
+}
+.help-steps article > span {
+  @apply pt-[2px] text-[10px] text-[#9393a7];
+}
+.help-steps h3 {
+  @apply mb-[5px] text-[12px] font-[550];
+}
+.help-steps code {
+  @apply rounded-[3px] bg-[#17171f] px-[3px] py-[1px] text-[#9393a7];
+}
+.dialog .subtle {
+  @apply pt-[15px] text-[10px] [border-top:1px_solid_#292933];
+}

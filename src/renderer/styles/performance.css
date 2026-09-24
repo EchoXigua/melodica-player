@@ -1,0 +1,70 @@
+.performance .tiny-label {
+  @apply text-[7px] tracking-[2px] text-[#9393a7];
+}
+.performance h2 {
+  @apply mt-[8px] max-w-[390px] overflow-hidden text-[23px] font-medium tracking-[-0.6px] text-ellipsis whitespace-nowrap;
+}
+.performance h2 > span {
+  @apply ml-[12px] text-[10px] font-normal tracking-[0] text-[#9393a7];
+}
+.session-meta b {
+  @apply mr-[4px] [font-family:'Manrope_Variable',_sans-serif] text-[12px] font-medium text-[#9393a7];
+}
+.output-tag i {
+  @apply h-[4px] w-[4px] rounded-full bg-[#17171f];
+}
+.note-bar.past {
+  @apply bg-[#101016];
+}
+.note-bar.current {
+  @apply h-[6px] bg-[#101016] shadow-[0_0_13px_#a78bfa77];
+}
+.playhead > span {
+  @apply absolute top-[-2px] left-[-3px] h-[4px] w-[7px] rounded-[1px] bg-[#101016];
+}
+.keyboard-label span {
+  @apply text-[6px] leading-[1.7] tracking-[1px];
+}
+.piano-key span {
+  @apply text-[7px] text-[#9393a7];
+}
+.piano-key b {
+  @apply text-center text-[15px] leading-[1] font-semibold;
+}
+.piano-key small {
+  @apply text-right text-[6px] text-[#9393a7];
+}
+.piano-key.pressed {
+  @apply [border-color:#f9bb93] [border-bottom-color:#b2643d] bg-[#101016] text-[#f0f0f6];
+}
+.piano-key.pressed small,
+.piano-key.pressed span {
+  @apply text-[#f0f0f6];
+}
+.modifier-list > span {
+  @apply flex items-center gap-[7px] text-[8px] text-[#9393a7];
+}
+.modifier-list i {
+  @apply h-[4px] w-[4px] rounded-full bg-[#101016];
+}
+.modifier-list b {
+  @apply ml-auto text-[8px] font-normal text-[#9393a7];
+}
+.modifier-list .on {
+  @apply text-[#9393a7];
+}
+.modifier-list .on i {
+  @apply bg-[#17171f] shadow-[0_0_6px_#f2956c];
+}
+.modifier-list .on b {
+  @apply text-[#9393a7];
+}
+.countdown-overlay > span {
+  @apply text-[12px] tracking-[1px] text-[#9393a7];
+}
+.countdown-overlay strong {
+  @apply text-[90px] leading-[1.2] font-[450] text-[#9393a7] tabular-nums;
+}
+.countdown-overlay small {
+  @apply text-[10px] text-[#9393a7];
+}

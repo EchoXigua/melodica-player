@@ -1,0 +1,90 @@
+.panel-header h3 {
+  @apply text-[12px] font-[550];
+}
+.panel-header > .tiny-label {
+  @apply text-[6px] whitespace-nowrap text-[#9393a7];
+}
+.segmented button {
+  @apply relative bg-transparent p-[0] text-[11px] text-[#9393a7];
+}
+.segmented button > span:last-child {
+  @apply relative z-[1];
+}
+.segmented button[aria-selected='true'] {
+  @apply font-[650] text-[#f0f0f6];
+}
+.line-numbers span {
+  @apply block;
+}
+textarea {
+  @apply h-full w-full resize-none bg-transparent [padding:0_17px_0_0] [font-family:ui-monospace,_SFMono-Regular,_Consolas,_monospace] text-[15px] leading-[25px] tracking-[1px] [tab-size:2] text-[#f0f0f6] [outline:none]! [border:0];
+}
+textarea:focus-visible {
+  @apply pl-[8px] shadow-[inset_2px_0_#ee9972];
+}
+.syntax code {
+  @apply mr-[3px] text-[9px] text-[#9393a7];
+}
+.editor-footer > span {
+  @apply flex items-center gap-[5px] text-[#9393a7];
+}
+.editor-footer i {
+  @apply h-[4px] w-[4px] rounded-full bg-[#101016];
+}
+.text-button:hover {
+  @apply text-[#9393a7];
+}
+.tempo-row > label {
+  @apply text-[10px] text-[#9393a7];
+}
+.tempo-row > label > span {
+  @apply mt-[5px] block text-[8px] text-[#9393a7];
+}
+.tempo-value input {
+  @apply w-[70px] bg-transparent p-[0] text-right [font-family:inherit] text-[28px] font-medium tracking-[-1px] text-[#f0f0f6] [border:0];
+}
+.tempo-value svg {
+  @apply text-[#9393a7];
+}
+.two-settings > label {
+  @apply text-[9px] text-[#9393a7];
+}
+.two-settings select,
+.two-settings input {
+  @apply mt-[7px] h-[33px] w-full rounded-[5px] border-[1px] border-solid border-[#30303d] bg-[#17171f] px-[10px] py-[7px] text-[11px] text-[#f0f0f6];
+}
+.advanced-button > svg:last-child {
+  @apply ml-[6px];
+}
+.advanced-button:hover {
+  @apply text-accent;
+}
+.output-note p {
+  @apply text-[8px] leading-[1.7] text-[#9393a7];
+}
+.output-note span {
+  @apply block text-[7px] text-[#9393a7];
+}
+.midi-panel strong {
+  @apply max-w-[100%] overflow-hidden text-[12px] font-medium text-ellipsis whitespace-nowrap text-[#9393a7];
+}
+.midi-panel p,
+.midi-panel label,
+.midi-panel small {
+  @apply text-[9px] text-[#9393a7];
+}
+.midi-panel select {
+  @apply w-full rounded-[5px] border-[1px] border-solid border-[#30303d] bg-[#17171f] p-[8px] text-[11px] text-[#9393a7];
+}
+.midi-panel .button {
+  @apply px-[12px] py-[7px] text-[10px];
+}
+.status-line > span:first-child {
+  @apply flex max-w-[85%] items-center gap-[6px] leading-[1.5];
+}
+.status-line > span:last-child {
+  @apply whitespace-nowrap;
+}
+.status-line .error {
+  @apply text-[#9393a7];
+}

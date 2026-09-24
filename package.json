@@ -1,0 +1,82 @@
+{
+  "name": "melodica-studio",
+  "version": "0.2.0",
+  "description": "独立实现的口风琴曲谱与键鼠演奏器",
+  "main": "src/main/index.cjs",
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "preinstall": "node scripts/require-pnpm.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "pnpm native:mac && pnpm build && electron .",
+    "test": "node --test tests/unit/*.test.cjs",
+    "test:electron": "pnpm native:mac && pnpm build && electron tests/integration/electron-smoke.cjs",
+    "pack:win": "pnpm build && electron-builder --win portable --x64",
+    "pack:mac": "pnpm native:mac && pnpm build && electron-builder --mac dir",
+    "format": "prettier --write src tests scripts vite.config.mjs package.json pnpm-workspace.yaml",
+    "format:check": "prettier --check src tests scripts vite.config.mjs package.json pnpm-workspace.yaml",
+    "midi:presets": "node scripts/generate-bundled-midi.mjs",
+    "native:mac": "node scripts/build-mac-input.cjs",
+    "test:mac-input": "pnpm native:mac && pnpm build && electron tests/integration/mac-input-smoke.cjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
+    "@tonejs/midi": "2.0.28",
+    "lucide-react": "1.47.0",
+    "motion": "13.4.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "6.1.1",
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "prettier": "3.9.9",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "tailwindcss": "^4.3.3",
+    "vite": "8.3.0"
+  },
+  "build": {
+    "appId": "local.melodica.studio",
+    "productName": "Melodica Studio",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/main/**/*",
+      "src/preload/**/*",
+      "src/shared/**/*",
+      "build/renderer/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "native/windows",
+        "to": "native"
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": true,
+      "icon": "assets/icons/icon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.music",
+      "icon": "assets/icons/icon.icns",
+      "extraResources": [
+        {
+          "from": "native/macos/melodica-input",
+          "to": "native/macos/melodica-input"
+        }
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@10.32.0"
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+renderer-dist/
+.pnpm-store/
+.DS_Store
+
+build/
+
+native/macos/melodica-input
+
+.env
+.env.*
+!.env.example
+*.log

@@ -1,0 +1,21 @@
+.icon-button:hover:not(:disabled) {
+  @apply bg-[#17171f] text-[#f0f0f6];
+}
+main {
+  @apply m-auto max-w-[1480px] [padding:31px_38px_15px];
+}
+h1 {
+  @apply mt-[12px] text-[34px] leading-[1.35] font-[650] tracking-[-1.3px];
+}
+h1 > span {
+  @apply font-normal text-[#9393a7];
+}
+.page-heading p {
+  @apply mt-[12px] text-[11px] text-[#9393a7];
+}
+.button:hover {
+  @apply bg-[#17171f];
+}
+.import-button svg:last-child {
+  @apply ml-[13px] text-[#9393a7];
+}

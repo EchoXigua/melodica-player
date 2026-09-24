@@ -1,0 +1,52 @@
+.nav-label > span {
+  @apply text-[9px];
+}
+.nav-item > svg:last-child:not(:first-child) {
+  @apply ml-auto;
+}
+.nav-item:hover {
+  @apply bg-[#17171f];
+}
+.nav-item.selected {
+  @apply bg-[#17171f] font-[650] text-[#f0f0f6];
+}
+.song-item:hover,
+.song-item.chosen {
+  @apply bg-[#17171f];
+}
+.song-icon.neutral {
+  @apply [border-color:#d9dbd2] bg-[#17171f] text-[#9393a7];
+}
+.song-item > span:nth-child(2) {
+  @apply min-w-[0];
+}
+.song-item strong {
+  @apply block max-w-[106px] overflow-hidden text-[12px] font-[550] text-ellipsis whitespace-nowrap;
+}
+.song-item small {
+  @apply mt-[5px] block text-[9px] text-[#9393a7];
+}
+.add-score:hover {
+  @apply text-accent;
+}
+.instrument-note .tiny-label {
+  @apply text-[#9393a7];
+}
+.instrument-note strong {
+  @apply mt-[11px] block text-[12px] font-semibold;
+}
+.instrument-note p {
+  @apply [margin:10px_0_18px] text-[11px] leading-[1.9] text-[#9393a7];
+}
+.instrument-note svg {
+  @apply text-[#9393a7];
+}
+.breadcrumb strong {
+  @apply font-medium text-[#f0f0f6];
+}
+.breadcrumb > span {
+  @apply text-[#9393a7];
+}
+.connection i {
+  @apply h-[5px] w-[5px] rounded-full bg-[#101016];
+}

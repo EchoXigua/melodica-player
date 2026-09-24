@@ -28,7 +28,7 @@ export const browserApi = {
   }),
   reportInput: () => {},
   onInputTest: () => () => {},
-  info: wrap(() => ({ platform: 'browser', version: '0.2.1' })),
+  info: wrap(() => ({ platform: 'browser', version: '0.2.2' })),
   compile: wrap(plan),
   targets: wrap(() => []),
   copyText: wrap((text) => navigator.clipboard.writeText(text)),

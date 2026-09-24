@@ -32,8 +32,12 @@ function createPlayback({
     if (!request.dry && !['win32', 'darwin'].includes(platform))
       throw Error('键鼠演奏需要 macOS 或 Windows 桌面端');
     const targetPattern = platform === 'darwin' ? /^mac:[1-9]\d*$/ : /^\d+:\d+$/;
-    if (!request.dry && !targetPattern.test(request.target || ''))
+    if (!request.dry && platform !== 'win32' && !targetPattern.test(request.target || ''))
       throw Error('请先选择目标窗口或应用');
+    if (!request.dry && platform === 'win32' && request.target && !targetPattern.test(request.target))
+      throw Error('请先选择目标窗口或应用');
+    const nativeTarget =
+      !request.dry && platform === 'win32' && !request.target ? 'foreground' : request.target;
     const current = { cancelled: false, stopFile: null };
     job = current;
     const finish = (state) => {
@@ -77,7 +81,7 @@ function createPlayback({
           '-Plan',
           file,
           '-Target',
-          request.target,
+          nativeTarget,
           '-Owner',
           String(process.pid),
           '-StopFile',

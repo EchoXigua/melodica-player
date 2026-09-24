@@ -19,6 +19,11 @@ public class InputEngine {
  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
  [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll",SetLastError=true)] static extern uint SendInput(uint count,INPUT[] input,int size);
+ [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
+ [DllImport("kernel32.dll",SetLastError=true)] static extern IntPtr OpenProcess(uint access,bool inherit,uint pid);
+ [DllImport("kernel32.dll",SetLastError=true)] static extern bool CloseHandle(IntPtr handle);
+ [DllImport("advapi32.dll",SetLastError=true)] static extern bool OpenProcessToken(IntPtr process,uint access,out IntPtr token);
+ [DllImport("advapi32.dll",SetLastError=true)] static extern bool GetTokenInformation(IntPtr token,int cls,out int elevation,int len,out int ret);
  static readonly Dictionary<string,ushort> scans=new Dictionary<string,ushort>{{"Z",0x2c},{"X",0x2d},{"C",0x2e},{"V",0x2f},{"B",0x30},{"N",0x31},{"M",0x32},{",",0x33}};
  static readonly HashSet<string> held=new HashSet<string>();
  public static void List() {
@@ -46,18 +51,36 @@ public class InputEngine {
   if(File.Exists(stop)||(GetAsyncKeyState(0x77)&0x8000)!=0)return true;
   try{return Process.GetProcessById(owner).HasExited;}catch{return true;}
  }
+ static bool Elevated(uint pid) {
+  IntPtr process=pid==0?GetCurrentProcess():OpenProcess(0x1000,false,pid);
+  if(process==IntPtr.Zero)return false;
+  try {
+   IntPtr token;
+   if(!OpenProcessToken(process,0x8,out token))return false;
+   try { int elevation,ret; return GetTokenInformation(token,20,out elevation,4,out ret)&&elevation!=0; }
+   finally { CloseHandle(token); }
+  } finally { if(pid!=0)CloseHandle(process); }
+ }
  static bool Focused(IntPtr hwnd,uint pid) {
-  uint current;GetWindowThreadProcessId(hwnd,out current);
-  return GetForegroundWindow()==hwnd && current==pid;
+  IntPtr foreground=GetForegroundWindow();
+  if(foreground==IntPtr.Zero)return false;
+  uint foregroundPid;GetWindowThreadProcessId(foreground,out foregroundPid);
+  uint selectedPid;GetWindowThreadProcessId(hwnd,out selectedPid);
+  return foregroundPid==pid && selectedPid==pid;
  }
  public static void Play(string plan,string target,int owner,string stop) {
   string terminal="DONE";
   try {
-   string[] targetParts=target.Split(':');IntPtr hwnd=new IntPtr(long.Parse(targetParts[0]));uint pid=uint.Parse(targetParts[1]);
+   bool loose=string.IsNullOrEmpty(target)||target=="foreground";
+   IntPtr hwnd=IntPtr.Zero;uint pid=0;
+   if(!loose){string[] targetParts=target.Split(':');hwnd=new IntPtr(long.Parse(targetParts[0]));pid=uint.Parse(targetParts[1]);
+    if(Elevated(pid)&&!Elevated(0))throw new Exception("目标窗口以管理员身份运行，当前程序权限更低，系统会丢掉发往它的按键。请关闭本程序后右键“以管理员身份运行”再试。");}
    string[] lines=File.ReadAllLines(plan);if(lines.Length>160002)throw new Exception("Plan too large");
    Console.WriteLine("COUNTDOWN 5");Stopwatch clock=Stopwatch.StartNew();
    while(clock.ElapsedMilliseconds<5000){if(Cancelled(owner,stop)){terminal="STOP Cancelled";return;}Thread.Sleep(5);}
-   if(!Focused(hwnd,pid))throw new Exception("Selected target is not the foreground window");
+   if(loose){uint foregroundPid;GetWindowThreadProcessId(GetForegroundWindow(),out foregroundPid);
+    if(foregroundPid!=0&&Elevated(foregroundPid)&&!Elevated(0))throw new Exception("前台程序以管理员身份运行，当前程序权限更低，系统会丢掉发往它的按键。请关闭本程序后右键“以管理员身份运行”再试。");}
+   else if(!Focused(hwnd,pid))throw new Exception("请先点进所选程序，让它处于前台。游戏若同时开着启动器，请选择正在前台的那个窗口。");
    // Do not begin while the user is holding keys/buttons used by the instrument.
    foreach(int vk in new int[]{0x5a,0x58,0x43,0x56,0x42,0x4e,0x4d,0xbc,1,2,4})
     if((GetAsyncKeyState(vk)&0x8000)!=0)throw new Exception("Release instrument keys and mouse buttons before playback");
@@ -67,11 +90,11 @@ public class InputEngine {
     if(at<last||at>1800000)throw new Exception("Invalid event timing");last=at;
     while(clock.ElapsedMilliseconds<at) {
      if(Cancelled(owner,stop)){terminal="STOP Cancelled";return;}
-     if(!Focused(hwnd,pid)){terminal="STOP Target lost focus";return;}
+     if(!loose&&!Focused(hwnd,pid)){terminal="STOP 目标失去前台，已停止";return;}
      Thread.Sleep(2);
     }
     if(Cancelled(owner,stop)){terminal="STOP Cancelled";return;}
-    if(!Focused(hwnd,pid)){terminal="STOP Target lost focus";return;}
+    if(!loose&&!Focused(hwnd,pid)){terminal="STOP 目标失去前台，已停止";return;}
     if(clock.ElapsedMilliseconds-at>250)throw new Exception("Playback timing fell behind; stopped to avoid an input burst");
     if(p[1]=="end")continue;
     Send(p[1],p[2],p[3]=="1");

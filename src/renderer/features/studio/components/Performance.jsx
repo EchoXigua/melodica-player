@@ -89,7 +89,9 @@ export function Performance({ s, enter, reduced }) {
                 ? '有声试听即将开始'
                 : s.dry
                   ? '模拟演奏即将开始'
-                  : '请切到目标窗口，并松开鼠标'}
+                  : s.platform === 'win32'
+                    ? '请切到全屏游戏，并松开鼠标'
+                    : '请切到目标窗口，并松开鼠标'}
             </span>
             <AnimatePresence mode="popLayout">
               <motion.strong

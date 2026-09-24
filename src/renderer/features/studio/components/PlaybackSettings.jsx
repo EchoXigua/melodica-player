@@ -73,12 +73,14 @@ export function PlaybackSettings({ s, setDialog }) {
         <MousePointer2 size={15} />
         <p>
           {s.input.supported
-            ? '选择游戏窗口，即可切换到自动演奏。'
+            ? s.platform === 'win32'
+              ? '点开始演奏后有 5 秒，切到全屏游戏即可。'
+              : '选择游戏窗口，即可切换到自动演奏。'
             : '当前设备支持曲谱编辑与有声试听。'}
           <span>
             {s.platform === 'darwin'
               ? 'Mac 需授权辅助功能；选择目标应用，5 秒后开始。'
-              : '真实键鼠输出支持 macOS 与 Windows 桌面端。'}
+              : '不必选择窗口。倒计时结束时，按键会发给当时的前台程序。'}
           </span>
         </p>
       </div>

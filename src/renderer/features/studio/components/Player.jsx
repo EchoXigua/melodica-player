@@ -24,7 +24,11 @@ export function Player({ s, enter, reduced }) {
   }
   const listening = s.outputMode === 'audition';
   const unavailable =
-    !listening && (!s.input.supported || !s.input.granted || !s.input.ready || !s.target);
+    !listening &&
+    (!s.input.supported ||
+      !s.input.granted ||
+      !s.input.ready ||
+      (s.platform === 'darwin' && !s.target));
   const stopping = s.status === 'stopping';
   const label = stopping
     ? '正在停止…'
@@ -207,7 +211,7 @@ export function Player({ s, enter, reduced }) {
             </span>
           )}
 
-          {!listening && s.input.supported && (
+          {!listening && s.input.supported && s.platform === 'darwin' && (
             <div className="target-row flex items-center">
               <select
                 id="target"

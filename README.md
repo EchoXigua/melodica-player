@@ -143,7 +143,7 @@ dist/                          Electron 打包产物
 正式下载见 [Releases](https://github.com/EchoXigua/melodica-player/releases)。Windows 提供 x64 免安装 EXE，Mac 分别提供 Apple Silicon 和 Intel DMG。Mac 目前是临时签名版本，尚未经过 Apple 公证。
 
 - 手动构建：仓库 **Actions → Build and Release → Run workflow**，完成后从该次运行的 **Artifacts** 下载。手动构建不发布 Release。
-- 正式发布：先更新 `package.json` 版本并提交、推送，再创建匹配的标签，例如 `git tag v0.2.0` 和 `git push origin v0.2.0`。三个平台全部成功后自动发布到 Releases，同时提供 SHA-256 校验文件。
+- 正式发布：先更新 `package.json` 版本并提交、推送，再创建匹配的标签，例如 `git tag v0.2.1` 和 `git push origin v0.2.1`。三个平台全部成功后自动发布到 Releases，同时提供 SHA-256 校验文件。
 - 流水线使用 GitHub 自带的临时令牌，不需要填写个人 Token。发布步骤单独申请 `contents: write`；构建步骤只有读取权限。
 - 已发布的版本不会被覆盖。修复发布问题后使用新版本标签；尚未发布的草稿允许重新运行补齐文件。
 - 本地 `pnpm pack:mac:dir` 仍可仅生成应用目录。CI 只运行逻辑测试，不在云端发送真实键鼠输入。

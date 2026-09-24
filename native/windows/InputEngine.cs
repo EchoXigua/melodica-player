@@ -113,7 +113,8 @@ public class InputEngine {
    bool failed=false;
    foreach(string id in new List<string>(held)) {string[] p=id.Split(':');try{Send(p[0],p[1],false);}catch{failed=true;}}
    if(failed)terminal="ERROR Could not release all inputs; manually release instrument keys/buttons";
-   Console.WriteLine(terminal);
+   int space=terminal.IndexOf(' ');
+   Console.WriteLine(space<0?terminal:terminal.Substring(0,space)+" "+Convert.ToBase64String(Encoding.UTF8.GetBytes(terminal.Substring(space+1))));
   }
  }
 }}

@@ -54,10 +54,13 @@ test('native stop is confirmed only on close; late release errors override STOP'
   const stopPath = args[args.indexOf('-StopFile') + 1];
   await playback.stop();
   assert.equal(await fs.readFile(stopPath, 'utf8'), 'stop');
-  child.stdout.emit('data', Buffer.from('STOP Cancelled\n'));
+  child.stdout.emit('data', Buffer.from(`STOP ${Buffer.from('Cancelled').toString('base64')}\n`));
   assert.equal(playback.busy, true);
   assert.equal(events.length, 0);
-  child.stdout.emit('data', Buffer.from('ERROR Could not release all inputs')); // partial final line
+  child.stdout.emit(
+    'data',
+    Buffer.from(`ERROR ${Buffer.from('Could not release all inputs').toString('base64')}`),
+  ); // partial final line
   const finished = once(idle, 'idle');
   child.emit('close', 0);
   await finished;

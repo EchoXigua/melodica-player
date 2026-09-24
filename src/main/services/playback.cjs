@@ -105,9 +105,15 @@ function createPlayback({
           if (kind === 'NOTE') emit({ type: 'note', index: Number(detail) });
           // Terminal stdout is only confirmed after child close, after native key release.
           if (['DONE', 'STOP', 'ERROR'].includes(kind)) {
+            // Windows native (InputEngine.cs) base64-encodes this detail because piped
+            // Windows PowerShell stdout mangles non-ASCII text under the system ANSI
+            // codepage; macOS native prints plain UTF-8 already.
             const state = {
               type: kind === 'DONE' ? 'done' : kind === 'STOP' ? 'stopped' : 'error',
-              message: detail,
+              message:
+                platform === 'win32' && detail
+                  ? Buffer.from(detail, 'base64').toString('utf8')
+                  : detail,
             };
             if (terminal?.type !== 'error') terminal = state;
           }

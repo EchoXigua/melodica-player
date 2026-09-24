@@ -75,7 +75,7 @@ pnpm test:electron   # 构建 + Electron 模拟流程回归
 pnpm format          # 格式化源码
 pnpm format:check    # 检查格式
 pnpm pack:win        # Windows x64 portable
-pnpm pack:mac        # macOS 应用目录
+pnpm pack:mac        # macOS DMG 安装包
 ```
 
 Windows 打包建议在 Windows 上执行。原生输入模块通过系统 Windows PowerShell 5.1 + .NET Framework 加载，使用 Win32 SendInput，不需要 Python 或额外 .NET SDK。`pnpm-workspace.yaml` 仅允许 Electron/esbuild 的安装构建脚本，禁用本项目未使用的 electron-winstaller 安装脚本。
@@ -137,3 +137,13 @@ dist/                          Electron 打包产物
 授权入口只打开系统设置，权限由用户手动授予。无需录屏权限来枚举应用。使用英文键盘布局可避免输入法处理琴键。目标应用必须保持前台；开始有 5 秒切换时间，F8 / Fn+F8、⌘+Shift+S 和停止按钮均可停止。播放取消、焦点丢失、父进程退出和正常结束都会尝试释放已按下的输入。
 
 `pnpm test:mac-input` 是显式的真实系统输入测试：打开本应用接收窗口，验证 8 个琴键、3 个鼠标键、演奏中停止和倒计时取消。测试会临时聚焦测试窗口并移动指针，请勿同时操作键鼠。普通 `pnpm test` 不发送系统输入。
+
+## GitHub 自动打包与下载
+
+正式下载见 [Releases](https://github.com/EchoXigua/melodica-player/releases)。Windows 提供 x64 免安装 EXE，Mac 分别提供 Apple Silicon 和 Intel DMG。Mac 目前是临时签名版本，尚未经过 Apple 公证。
+
+- 手动构建：仓库 **Actions → Build and Release → Run workflow**，完成后从该次运行的 **Artifacts** 下载。手动构建不发布 Release。
+- 正式发布：先更新 `package.json` 版本并提交、推送，再创建匹配的标签，例如 `git tag v0.2.0` 和 `git push origin v0.2.0`。三个平台全部成功后自动发布到 Releases，同时提供 SHA-256 校验文件。
+- 流水线使用 GitHub 自带的临时令牌，不需要填写个人 Token。发布步骤单独申请 `contents: write`；构建步骤只有读取权限。
+- 已发布的版本不会被覆盖。修复发布问题后使用新版本标签；尚未发布的草稿允许重新运行补齐文件。
+- 本地 `pnpm pack:mac:dir` 仍可仅生成应用目录。CI 只运行逻辑测试，不在云端发送真实键鼠输入。

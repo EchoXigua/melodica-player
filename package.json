@@ -14,12 +14,13 @@
     "test": "node --test tests/unit/*.test.cjs",
     "test:electron": "pnpm native:mac && pnpm build && electron tests/integration/electron-smoke.cjs",
     "pack:win": "pnpm build && electron-builder --win portable --x64",
-    "pack:mac": "pnpm native:mac && pnpm build && electron-builder --mac dir",
+    "pack:mac": "pnpm native:mac && pnpm build && electron-builder --mac dmg",
     "format": "prettier --write src tests scripts vite.config.mjs package.json pnpm-workspace.yaml",
     "format:check": "prettier --check src tests scripts vite.config.mjs package.json pnpm-workspace.yaml",
     "midi:presets": "node scripts/generate-bundled-midi.mjs",
     "native:mac": "node scripts/build-mac-input.cjs",
-    "test:mac-input": "pnpm native:mac && pnpm build && electron tests/integration/mac-input-smoke.cjs"
+    "test:mac-input": "pnpm native:mac && pnpm build && electron tests/integration/mac-input-smoke.cjs",
+    "pack:mac:dir": "pnpm native:mac && pnpm build && electron-builder --mac dir"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
@@ -72,8 +73,11 @@
           "from": "native/macos/melodica-input",
           "to": "native/macos/melodica-input"
         }
-      ]
-    }
+      ],
+      "identity": "-",
+      "notarize": false
+    },
+    "artifactName": "melodica-player-${version}-${os}-${arch}.${ext}"
   },
   "engines": {
     "node": ">=22.12.0"

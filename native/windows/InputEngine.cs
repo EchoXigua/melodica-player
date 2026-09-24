@@ -25,6 +25,7 @@ public class InputEngine {
  [DllImport("advapi32.dll",SetLastError=true)] static extern bool OpenProcessToken(IntPtr process,uint access,out IntPtr token);
  [DllImport("advapi32.dll",SetLastError=true)] static extern bool GetTokenInformation(IntPtr token,int cls,out int elevation,int len,out int ret);
  static readonly Dictionary<string,ushort> scans=new Dictionary<string,ushort>{{"Z",0x2c},{"X",0x2d},{"C",0x2e},{"V",0x2f},{"B",0x30},{"N",0x31},{"M",0x32},{",",0x33}};
+ static readonly Dictionary<string,ushort> vks=new Dictionary<string,ushort>{{"Z",0x5a},{"X",0x58},{"C",0x43},{"V",0x56},{"B",0x42},{"N",0x4e},{"M",0x4d},{",",0xbc}};
  static readonly HashSet<string> held=new HashSet<string>();
  public static void List() {
   EnumWindows(delegate(IntPtr h,IntPtr unused) {
@@ -39,7 +40,7 @@ public class InputEngine {
  }
  static void Send(string device,string code,bool down) {
   INPUT input=new INPUT();
-  if(device=="key") { if(!scans.ContainsKey(code))throw new Exception("Invalid key");input.type=1;input.u.ki.scan=scans[code];input.u.ki.flags=(uint)(0x8|(down?0:0x2)); }
+  if(device=="key") { if(!scans.ContainsKey(code))throw new Exception("Invalid key");input.type=1;input.u.ki.vk=vks[code];input.u.ki.scan=scans[code];input.u.ki.flags=(uint)(0x8|(down?0:0x2)); }
   else if(device=="mouse") {input.type=0;uint flag=code=="left"?2u:code=="right"?8u:code=="middle"?32u:0u;if(flag==0)throw new Exception("Invalid mouse button");input.u.mi.flags=down?flag:flag*2;}
   else throw new Exception("Invalid device");
   string id=device+":"+code;
@@ -57,9 +58,10 @@ public class InputEngine {
   try {
    IntPtr token;
    if(!OpenProcessToken(process,0x8,out token))return false;
-   try { int elevation,ret; return GetTokenInformation(token,20,out elevation,4,out ret)&&elevation!=0; }
+   try { int elevation,ret; if(!GetTokenInformation(token,20,out elevation,4,out ret))return false; return elevation!=0; }
    finally { CloseHandle(token); }
-  } finally { if(pid!=0)CloseHandle(process); }
+  } catch { return false; }
+  finally { if(pid!=0)CloseHandle(process); }
  }
  static bool Focused(IntPtr hwnd,uint pid) {
   IntPtr foreground=GetForegroundWindow();
@@ -81,9 +83,10 @@ public class InputEngine {
    if(loose){uint foregroundPid;GetWindowThreadProcessId(GetForegroundWindow(),out foregroundPid);
     if(foregroundPid!=0&&Elevated(foregroundPid)&&!Elevated(0))throw new Exception("前台程序以管理员身份运行，当前程序权限更低，系统会丢掉发往它的按键。请关闭本程序后右键“以管理员身份运行”再试。");}
    else if(!Focused(hwnd,pid))throw new Exception("请先点进所选程序，让它处于前台。游戏若同时开着启动器，请选择正在前台的那个窗口。");
-   // Do not begin while the user is holding keys/buttons used by the instrument.
-   foreach(int vk in new int[]{0x5a,0x58,0x43,0x56,0x42,0x4e,0x4d,0xbc,1,2,4})
-    if((GetAsyncKeyState(vk)&0x8000)!=0)throw new Exception("Release instrument keys and mouse buttons before playback");
+   // A click into a fullscreen game leaves a mouse button down and used to abort playback.
+   if(!loose)
+    foreach(int vk in new int[]{0x5a,0x58,0x43,0x56,0x42,0x4e,0x4d,0xbc})
+     if((GetAsyncKeyState(vk)&0x8000)!=0)throw new Exception("请先松开 Z X C V B N M 和逗号键，再开始演奏");
    clock.Restart();Console.WriteLine("PLAYING");long last=0;
    foreach(string line in lines) {
     string[] p=line.Split('\t');long at=long.Parse(p[0]);

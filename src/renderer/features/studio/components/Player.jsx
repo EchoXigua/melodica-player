@@ -59,7 +59,6 @@ export function Player({ s, enter, reduced }) {
         disabled={!s.plan || ['preparing', 'countdown', 'stopping'].includes(s.status)}
         onChange={(e) => setScrub(Number(e.target.value))}
         onPointerDown={(e) => {
-          e.currentTarget.setPointerCapture(e.pointerId);
           setScrub(Number(e.currentTarget.value));
         }}
         onPointerUp={(e) => commitSeek(e.currentTarget.value)}
